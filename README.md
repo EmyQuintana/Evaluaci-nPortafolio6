@@ -4,6 +4,8 @@ Explorador Geográfico es una aplicación web desarrollada en Django que permite
 
 Usuarios y administradores interactúan con la aplicación según sus permisos: los usuarios registran sus visitas y los administradores (staff) gestionan el contenido mediante un sistema CRUD protegido.
 
+![Vista Preliminar](screenshot/Captura.JPG)
+
 ---
 
 ## 🌟 Características Principales
