@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST 
 from .models import Pais, Lugar, Conocimiento 
 from .forms import RegistroForm, LugarForm
+from django.db.models import Count
 
 
 # --- Utilidad para verificar si el usuario es admin del proyecto ---
@@ -52,7 +53,7 @@ def logout_usuario(request):
 
 # Vista para listar todos los países (Req. 3 - Contenido Dinámico)
 def lista_paises(request):
-    paises = Pais.objects.all()
+    paises = Pais.objects.annotate(total_lugares=Count('lugares'))
     return render(request, 'geografia/lista_paises.html', {'paises': paises})
 
 

@@ -1,22 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="container mt-4">
-    <h1 class="fw-bold mb-4">{{ pais.nombre }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">{{ pais.nombre }}</h1>
+        <a href="{% url 'lista_paises' %}" class="btn btn-outline-secondary">Volver a Países</a>
+    </div>
 
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-5 shadow-sm">
         <div class="card-body">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h5 class="card-title">Tu Nivel de Conocimiento en {{ pais.nombre }}</h5>
+                    <h5 class="card-title">Tu Nivel de Conocimiento</h5>
                     <p class="card-text">
-                        Has explorado y conocido **{{ lugares_conocidos_ids|length }}** de **{{ total_lugares }}** lugares totales.
+                        Has explorado **{{ lugares_conocidos_ids|length }}** de **{{ total_lugares }}** lugares en {{ pais.nombre }}.
                     </p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <div class="progress" role="progressbar" aria-label="Porcentaje de Conocimiento" aria-valuenow="{{ porcentaje }}" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar bg-success" style="width: {{ porcentaje }}%">
+                <div class="col-md-4">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {{ porcentaje|stringformat:'f' }}%;" 
+                             aria-valuenow="{{ porcentaje|stringformat:'f' }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
                             {{ porcentaje }}%
                         </div>
                     </div>
@@ -25,43 +32,68 @@
         </div>
     </div>
 
-    <h2 class="mt-5 mb-3">Lugares y Experiencias</h2>
+    <h2 class="mb-4">Lugares y Experiencias</h2>
     
+    {% if request.user.is_staff %}
+    <div class="mb-3 text-end">
+        <a href="{% url 'crear_lugar' %}" class="btn btn-primary btn-sm">+ Agregar Nuevo Lugar</a>
+    </div>
+    {% endif %}
+
     <div class="row g-4">
         {% for lugar in lugares %}
-        {% with es_conocido=lugar.pk|stringformat:"i" in lugares_conocidos_ids %}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm {% if es_conocido %}border-success border-3{% endif %}">
-                
-                {% if lugar.imagen %}
-                <img src="{{ lugar.imagen.url }}" class="card-img-top object-fit-cover"
-                     style="height: 150px;" alt="{{ lugar.nombre }}">
-                {% endif %}
-
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ lugar.nombre }}</h5>
-                    <p class="card-text text-muted">{{ lugar.ciudad }} - {{ lugar.categoria }}</p>
+        
+            {% with lugar_id=lugar.pk %}
+            
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm {% if lugar_id in lugares_conocidos_ids %}border-success border-3{% endif %}">
                     
-                    <p class="small">{{ lugar.descripcion|truncatechars:100 }}</p>
+                    {% if lugar.imagen %}
+                    <img src="{{ lugar.imagen.url }}" class="card-img-top" 
+                         style="height: 200px; object-fit: cover;" 
+                         alt="{{ lugar.nombre }}">
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                        <span class="text-muted">Sin imagen disponible</span>
+                    </div>
+                    {% endif %}
 
-                    <div class="mt-auto">
-                        {% if es_conocido %}
-                            <button class="btn btn-success w-100 disabled">¡Lugar Conocido! ✅</button>
-                        {% else %}
-                            <form method="POST" action="{% url 'marcar_conocido' lugar.pk %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-primary w-100">Marcar como Conocido</button>
-                            </form>
-                        {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ lugar.nombre }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ lugar.ciudad }} - {{ lugar.categoria }}</h6>
+                        
+                        <p class="card-text small">{{ lugar.descripcion|truncatechars:100 }}</p>
+
+                        <div class="mt-auto">
+                            {% if lugar_id in lugares_conocidos_ids %}
+                                <button class="btn btn-success w-100 disabled">¡Lugar Conocido! ✅</button>
+                            {% else %}
+                                <form method="POST" action="{% url 'marcar_conocido' lugar.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-primary w-100">Marcar como Conocido</button>
+                                </form>
+                            {% endif %}
+                            
+                            {% if request.user.is_staff %}
+                            <div class="mt-2 d-flex gap-2">
+                                <a href="{% url 'editar_lugar' lugar.pk %}" class="btn btn-warning btn-sm flex-fill">Editar</a>
+                                <a href="{% url 'eliminar_lugar' lugar.pk %}" class="btn btn-danger btn-sm flex-fill">Eliminar</a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {% endwith %}
+
+            {% endwith %}
+
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    No hay lugares registrados en este país todavía.
+                </div>
+            </div>
         {% endfor %}
     </div>
-
-    <a href="{% url 'lista_paises' %}" class="btn btn-secondary mt-5">Volver a la lista de países</a>
-
 </div>
 {% endblock %}

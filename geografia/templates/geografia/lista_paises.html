@@ -2,42 +2,35 @@
 {% load static %}
 
 {% block content %}
-<div class="hero mb-4">
-    <div class="hero-overlay">
-        <h1 class="display-5 fw-bold text-center">Explorador de Conocimiento Geográfico</h1>
-        <p class="lead text-center mb-4">
+<div class="hero mb-4 bg-light p-5 rounded-3">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-5 fw-bold">Explorador de Conocimiento Geográfico</h1>
+        <p class="fs-4 mb-4">
             Selecciona un país para registrar y visualizar tu porcentaje de conocimiento.
         </p>
-
-        <div class="text-center">
-            {% if user.is_authenticated %}
-                <a href="{% url 'lista_paises' %}" class="btn btn-primary btn-lg">
-                    Ver Países
-                </a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-success btn-lg">
-                    Iniciar Sesión
-                </a>
-            {% endif %}
-        </div>
+        
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 gap-3">Iniciar Sesión para comenzar</a>
+        {% endif %}
     </div>
 </div>
-<div class="container my-4">
 
-    <h2 class="mb-4 text-center fw-bold">Países Disponibles</h2>
+<div class="container my-5">
+    <h2 class="mb-4 text-center fw-bold border-bottom pb-2">Países Disponibles</h2>
 
     <div class="row g-4">
         {% for pais in paises %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ pais.nombre }}</h5>
-                    <p class="card-text text-muted">Total de Lugares: {{ pais.lugares.count }}</p>
+            <div class="card h-100 shadow-sm hover-effect">
+                <div class="card-body d-flex flex-column text-center">
+                    <h5 class="card-title fw-bold text-primary">{{ pais.nombre }}</h5>
+                    
+                    <p class="card-text text-muted mb-4">
+                        Lugares a explorar: <span class="badge bg-secondary">{{ pais.lugares.count }}</span>
+                    </p>
 
                     <div class="mt-auto"> 
-                        <a href="{% url 'detalle_pais' pais.pk %}"
-                           class="btn btn-primary btn-sm w-100">
+                        <a href="{% url 'detalle_pais' pais.pk %}" class="btn btn-outline-primary w-100">
                             Explorar y Marcar
                         </a>
                     </div>
@@ -45,7 +38,9 @@
             </div>
         </div>
         {% empty %}
-        <p class="text-center w-100">No hay países registrados aún. (Admin: Agrega países en la administración)</p>
+        <div class="col-12 text-center">
+            <p class="text-muted">No hay países registrados aún.</p>
+        </div>
         {% endfor %}
     </div>
 </div>
